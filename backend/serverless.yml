@@ -4,6 +4,7 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
 package:
   individually: true
 custom:
@@ -24,6 +25,19 @@ provider:
     AUTH_0_SECRET_FIELD: auth0Secret #envirionment variable in particular secret resource
     TODOS_TABLE: Todos-${self:provider.stage}
     TODO_ID_INDEX: TodoIdIndex
+  documentation:
+      api:
+        info:
+          version: v1.0.0 #current version of the api
+          title: Todo api
+          description: Serverless application for todo 
+      models:
+        - name: CreateTodoModel
+          contentType: application/json
+          schema: ${file(src/jsonSchema/create-todo-request.json)}
+        - name: UpdateTodoModel
+          contentType: application/json
+          schema: ${file(src/jsonSchema/update-todo-request.json)}
     
 functions:
   Auth:
@@ -58,7 +72,13 @@ functions:
           method: post
           path: todos
           authorizer: Auth
-          cors: true    
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: Create a todo
+            description: Create a todo
+            requestModels:
+              'application/json': CreateTodoModel    
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -79,7 +99,13 @@ functions:
           method: patch
           path: todos/{todoId}
           authorizer: Auth 
-          cors: true   
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: update todo
+            description: update todo
+            requestModels:
+              'application/json': UpdateTodoModel       
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -218,6 +244,14 @@ resources:
         ResponseType: DEFAULT_4XX
         RestApiId:
           Ref: 'ApiGatewayRestApi'
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator  
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi #ApiGatewayRestApi is the logical name of the resource
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
             
 
         
