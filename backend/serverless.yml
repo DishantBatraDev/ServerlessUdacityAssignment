@@ -10,6 +10,19 @@ package:
 custom:
   webpackConfig: ./webpack.config.js 
   includeModules: true
+  documentation:
+    api:
+      info:
+        version: v1.0.0 #current version of the api
+        title: Todo api
+        description: Serverless application for todo 
+    models:
+      - name: CreateTodoModel
+        contentType: application/json
+        schema: ${file(src/jsonSchema/create-todo-request.json)}
+      - name: UpdateTodoModel
+        contentType: application/json
+        schema: ${file(src/jsonSchema/update-todo-request.json)}
 provider:
   name: aws
   runtime: nodejs12.x
@@ -25,20 +38,6 @@ provider:
     AUTH_0_SECRET_FIELD: auth0Secret #envirionment variable in particular secret resource
     TODOS_TABLE: Todos-${self:provider.stage}
     TODO_ID_INDEX: TodoIdIndex
-  documentation:
-      api:
-        info:
-          version: v1.0.0 #current version of the api
-          title: Todo api
-          description: Serverless application for todo 
-      models:
-        - name: CreateTodoModel
-          contentType: application/json
-          schema: ${file(src/jsonSchema/create-todo-request.json)}
-        - name: UpdateTodoModel
-          contentType: application/json
-          schema: ${file(src/jsonSchema/update-todo-request.json)}
-    
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
